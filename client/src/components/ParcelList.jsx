@@ -1,4 +1,3 @@
-// The sidebar list of parcels, including its loading, error and empty states.
 import { useEffect, useRef } from 'react';
 import StatusBadge from './StatusBadge.jsx';
 import { formatArea, formatLabel } from '../utils/format.js';
@@ -6,7 +5,6 @@ import { formatArea, formatLabel } from '../utils/format.js';
 function ParcelListItem({ parcel, isSelected, onSelect }) {
   const ref = useRef(null);
 
-  // When this parcel is selected (e.g. by clicking its marker), scroll it into view.
   useEffect(() => {
     if (isSelected) ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }, [isSelected]);

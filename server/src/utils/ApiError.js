@@ -1,11 +1,9 @@
-// An error that knows which HTTP status code it should produce.
-// Controllers and middleware throw it; the central error handler turns it into JSON.
 export class ApiError extends Error {
   constructor(status, message, details = []) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
-    this.details = details; // [{ field, message }]
+    this.details = details;
   }
 
   static badRequest(message, details) {

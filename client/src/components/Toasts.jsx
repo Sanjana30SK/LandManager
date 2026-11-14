@@ -1,4 +1,3 @@
-// Renders the notifications from useToasts. aria-live makes screen readers announce them.
 export default function Toasts({ toasts, onDismiss }) {
   return (
     <div className="toasts" aria-live="polite" aria-atomic="false">

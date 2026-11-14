@@ -1,5 +1,3 @@
-// Rejects URLs like /api/parcels/abc with a 400 before they reach the database.
-// A MongoDB ObjectId is exactly 24 hexadecimal characters.
 import { ApiError } from '../utils/ApiError.js';
 
 const OBJECT_ID = /^[a-f0-9]{24}$/i;

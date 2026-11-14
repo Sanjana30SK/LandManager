@@ -1,4 +1,3 @@
-// Short notifications ("Parcel updated") that disappear by themselves after a few seconds.
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 const DURATION_MS = 4000;
@@ -10,7 +9,6 @@ export function useToasts() {
 
   const dismiss = useCallback((id) => setToasts((list) => list.filter((t) => t.id !== id)), []);
 
-  // tone: 'success' | 'error'
   const showToast = useCallback(
     (message, tone = 'success') => {
       const id = nextId.current++;
@@ -24,7 +22,6 @@ export function useToasts() {
     [dismiss],
   );
 
-  // Clear pending timers if the app unmounts.
   useEffect(() => {
     const pending = timers.current;
     return () => pending.forEach(clearTimeout);

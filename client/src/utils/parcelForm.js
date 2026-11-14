@@ -1,14 +1,5 @@
-// Helpers for the parcel form: empty values, quick browser-side checks,
-// converting form values to the API body, and mapping server errors to fields.
-//
-// The browser checks only give instant feedback. The server always validates again
-// and has the final say (anyone can call the API without this form).
-
-// Coordinates from a map click have ~15 decimals; 6 decimals is about 10 cm.
 export const roundCoord = (n) => Math.round(n * 1e6) / 1e6;
 
-// All inputs hold strings while the user types; they are converted on submit.
-// With `parcel` (editing) the form starts with that parcel's current values.
 export function initialValues(meta, location, parcel = null) {
   return {
     title: parcel?.title ?? '',
@@ -49,7 +40,6 @@ export function validate(values, limits) {
   return errors;
 }
 
-// Form values (strings) -> request body in the shape the API expects.
 export function toPayload(values) {
   return {
     title: values.title.trim(),
@@ -62,7 +52,6 @@ export function toPayload(values) {
   };
 }
 
-// Server error details use API field names ("location.lat"); the form uses "lat".
 const FIELD_FROM_SERVER = { 'location.lat': 'lat', 'location.lng': 'lng', location: 'lat' };
 
 export function serverErrorsToFields(details = []) {
@@ -74,5 +63,4 @@ export function serverErrorsToFields(details = []) {
   return errors;
 }
 
-// The order fields appear in the form, used to focus the first one with an error.
 export const FIELD_ORDER = ['title', 'landUse', 'status', 'ownerName', 'areaSqm', 'lat', 'lng', 'description'];

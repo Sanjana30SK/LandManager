@@ -1,4 +1,3 @@
-// The details shown inside a marker's popup, with Edit and Delete buttons.
 import StatusBadge from './StatusBadge.jsx';
 import { formatArea, formatCoords, formatDate, formatLabel } from '../utils/format.js';
 

@@ -1,7 +1,3 @@
-// Generic validation middleware.
-// Usage: validate({ body: someZodSchema, query: otherZodSchema })
-// On success the cleaned data is stored in req.validated.body / req.validated.query.
-// On failure it throws a 400 ApiError listing every invalid field.
 import { ApiError } from '../utils/ApiError.js';
 
 const toDetails = (issues) =>

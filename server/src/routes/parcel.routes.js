@@ -1,4 +1,3 @@
-// Maps each URL + HTTP method to: [checks] -> controller.
 import { Router } from 'express';
 import {
   listParcels,

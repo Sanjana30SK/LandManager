@@ -1,5 +1,3 @@
-// Search box + status / land-use filters shown above the parcel list.
-// Keyboard: "/" anywhere focuses the search box; Esc inside it clears the search.
 import { useEffect, useRef } from 'react';
 import { formatLabel } from '../utils/format.js';
 import { hasActiveFilters } from '../utils/filters.js';
@@ -8,7 +6,6 @@ export default function FilterBar({ filters, onChange, onClear, meta }) {
   const searchRef = useRef(null);
   const set = (field) => (e) => onChange({ ...filters, [field]: e.target.value });
 
-  // "/" focuses search (unless the user is already typing somewhere).
   useEffect(() => {
     const onKey = (e) => {
       const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName) || e.target.isContentEditable;

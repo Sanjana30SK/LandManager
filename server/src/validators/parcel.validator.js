@@ -1,9 +1,6 @@
-// Zod schemas describing what a valid request looks like.
-// These run BEFORE the database is touched and produce one clear message per field.
 import { z } from 'zod';
 import { STATUSES, LAND_USES, DEFAULT_STATUS, LIMITS } from '../constants/parcel.js';
 
-// Gives "X is required" when a field is missing and "X must be ..." when it has the wrong type.
 const required = (label, kind) => ({
   error: (issue) => (issue.input === undefined || issue.input === null ? `${label} is required` : `${label} must be ${kind}`),
 });
@@ -30,9 +27,7 @@ const locationSchema = z.object(
   required('Location', 'an object like { "lat": 12.97, "lng": 77.59 }'),
 );
 
-// Used for both POST (create) and PUT (update).
-// PUT replaces all editable fields, so optional fields fall back to their defaults when left out.
-// Unknown keys (e.g. _id, createdAt) are stripped automatically by z.object.
+// z.object drops unknown fields, so clients can't set _id, createdAt, etc.
 export const parcelBodySchema = z.object(
   {
     title: z
@@ -61,7 +56,6 @@ export const parcelBodySchema = z.object(
   { error: 'Request body must be a JSON object' },
 );
 
-// Query string for GET /parcels. Empty values (e.g. ?status=) are treated as "not set".
 const emptyToUndefined = (v) => (v === '' ? undefined : v);
 
 export const listQuerySchema = z.object({

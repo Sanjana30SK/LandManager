@@ -1,11 +1,7 @@
-// Mongoose model for a land parcel.
-// The schema is the database's own safety net: even if a request skips the Zod validators
-// (added in Phase 2), invalid data still cannot be saved.
 import mongoose from 'mongoose';
 import { STATUSES, LAND_USES, DEFAULT_STATUS, LIMITS } from '../constants/parcel.js';
 import { isValidLatLng, toLatLng } from '../utils/location.js';
 
-// GeoJSON Point: { type: 'Point', coordinates: [lng, lat] }
 const pointSchema = new mongoose.Schema(
   {
     type: { type: String, enum: ['Point'], default: 'Point', required: true },
@@ -21,7 +17,6 @@ const pointSchema = new mongoose.Schema(
   { _id: false },
 );
 
-// GeoJSON Polygon (bonus feature): { type: 'Polygon', coordinates: [[[lng, lat], ...]] }
 const polygonSchema = new mongoose.Schema(
   {
     type: { type: String, enum: ['Polygon'], required: true },
@@ -70,10 +65,9 @@ const parcelSchema = new mongoose.Schema(
     boundary: { type: polygonSchema, default: undefined },
   },
   {
-    timestamps: true, // adds createdAt and updatedAt automatically
+    timestamps: true,
+    // GeoJSON stores [lng, lat]; clients get { lat, lng } so the order can't be mixed up.
     toJSON: {
-      // Shape every parcel the same way whenever it is sent as JSON:
-      // _id -> id, GeoJSON -> { lat, lng }, and no internal __v field.
       transform(_doc, ret) {
         return {
           id: String(ret._id),
@@ -93,9 +87,8 @@ const parcelSchema = new mongoose.Schema(
   },
 );
 
-// Indexes
-parcelSchema.index({ location: '2dsphere' }); // geographic index for the point
-parcelSchema.index({ status: 1, landUse: 1 }); // fast status / land-use filters (bonus)
-parcelSchema.index({ createdAt: -1 }); // "newest first" sorting
+parcelSchema.index({ location: '2dsphere' });
+parcelSchema.index({ status: 1, landUse: 1 });
+parcelSchema.index({ createdAt: -1 });
 
 export const Parcel = mongoose.model('Parcel', parcelSchema);

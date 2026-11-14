@@ -1,10 +1,3 @@
-// Top-level layout: header, sidebar on the left, map on the right.
-// App owns the shared state and passes it down, so the list, the form and the map always agree:
-//   parcels        - every parcel (from useParcels)
-//   selectedId     - the parcel whose popup is open / highlighted in the list
-//   draft          - while the form is open: { mode: 'create' | 'edit', id?, location }
-//   pendingDelete  - the parcel waiting for delete confirmation
-//   filters        - { search, status, landUse } typed / chosen in the filter bar
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import FilterBar from './components/FilterBar.jsx';
 import ParcelList from './components/ParcelList.jsx';
@@ -21,8 +14,6 @@ import { roundCoord } from './utils/parcelForm.js';
 import { EMPTY_FILTERS, hasActiveFilters, matchesFilters } from './utils/filters.js';
 
 export default function App() {
-  // What the user typed / chose. The search text is debounced before it is sent to the server;
-  // the dropdowns apply immediately.
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const debouncedSearch = useDebouncedValue(filters.search.trim(), 300);
   const queryFilters = useMemo(
@@ -42,14 +33,10 @@ export default function App() {
 
   const editingParcel = draft?.mode === 'edit' ? (parcels.find((p) => p.id === draft.id) ?? null) : null;
 
-  // If the parcel being edited disappears from the list, close the form.
   useEffect(() => {
     if (draft?.mode === 'edit' && !editingParcel) setDraft(null);
   }, [draft, editingParcel]);
 
-  // ----- Search and filters -----
-
-  // A new search starts fresh: close any open popup so the map can zoom to the results.
   const changeFilters = useCallback((next) => {
     setSelectedId(null);
     setFilters(next);
@@ -57,8 +44,7 @@ export default function App() {
 
   const clearFilters = useCallback(() => changeFilters(EMPTY_FILTERS), [changeFilters]);
 
-  // After saving: if the parcel doesn't match the current filters it would vanish from the
-  // list, which looks like it wasn't saved. Clear the filters instead so it stays visible.
+  // If a saved parcel doesn't match the active filters, clear them so it doesn't seem to vanish.
   const keepVisible = useCallback(
     (parcel) => {
       if (matchesFilters(parcel, queryFilters)) return false;
@@ -68,9 +54,6 @@ export default function App() {
     [queryFilters],
   );
 
-  // ----- Create / edit -----
-
-  // Click on empty map space: start a new parcel there, or move the red pin if the form is open.
   const handleMapClick = useCallback((latlng) => {
     const location = { lat: roundCoord(latlng.lat), lng: roundCoord(latlng.lng) };
     setSelectedId(null);
@@ -84,13 +67,11 @@ export default function App() {
 
   const setDraftLocation = useCallback((location) => setDraft((d) => (d ? { ...d, location } : d)), []);
 
-  // Cancel: discard changes. When editing, re-select the parcel so the user is back where they started.
   const cancelDraft = useCallback(() => {
     if (draft?.mode === 'edit') setSelectedId(draft.id);
     setDraft(null);
   }, [draft]);
 
-  // Called by the form. Validation errors are thrown back to the form so it can show them per field.
   const handleSubmit = useCallback(
     async (payload) => {
       if (draft.mode === 'edit') {
@@ -103,7 +84,6 @@ export default function App() {
           showToast(`Saved changes to “${updated.title}”${cleared ? '. Filters were cleared so you can see it' : ''}`);
         } catch (err) {
           if (err.status !== 404) throw err;
-          // Deleted in the meantime (e.g. in another browser tab).
           removeParcel(draft.id);
           setDraft(null);
           showToast('This parcel no longer exists. It may have been deleted elsewhere.', 'error');
@@ -114,14 +94,12 @@ export default function App() {
       const created = await createParcel(payload);
       addParcel(created);
       setDraft(null);
-      setSelectedId(created.id); // fly to the new parcel and open its popup
+      setSelectedId(created.id);
       const cleared = keepVisible(created);
       showToast(`Added “${created.title}”${cleared ? '. Filters were cleared so you can see it' : ''}`);
     },
     [draft, addParcel, replaceParcel, removeParcel, showToast, keepVisible],
   );
-
-  // ----- Delete -----
 
   const requestDelete = useCallback((parcel) => {
     setDeleteState({ busy: false, error: null });
@@ -139,9 +117,9 @@ export default function App() {
     } catch (err) {
       if (err.status !== 404) {
         setDeleteState({ busy: false, error: err.message });
-        return; // keep the dialog open so the user can retry or cancel
+        return;
       }
-      alreadyGone = true; // someone else deleted it: the result is the same
+      alreadyGone = true;
     }
     removeParcel(parcel.id);
     setSelectedId((current) => (current === parcel.id ? null : current));
@@ -149,8 +127,6 @@ export default function App() {
     setDeleteState({ busy: false, error: null });
     showToast(alreadyGone ? `“${parcel.title}” had already been deleted` : `Deleted “${parcel.title}”`);
   }, [pendingDelete, removeParcel, showToast]);
-
-  // ----- Layout -----
 
   const isEditing = draft?.mode === 'edit';
   const formReady = draft && (!isEditing || editingParcel);
@@ -243,7 +219,6 @@ export default function App() {
             onDraftMove={setDraftLocation}
             resultsKey={resultsKey}
           />
-          {/* Hidden while a popup is open, so it never covers the parcel's details. */}
           {(draft || !selectedId) && (
             <p className={`map-hint${draft ? '' : ' map-hint--idle'}`} aria-live="polite">
               {isEditing

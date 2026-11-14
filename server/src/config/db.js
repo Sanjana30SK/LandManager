@@ -1,8 +1,6 @@
-// Opens and closes the MongoDB connection using Mongoose.
 import mongoose from 'mongoose';
 import { env } from './env.js';
 
-// Turn common Atlas failures into messages that say how to fix them.
 function explain(error) {
   const msg = error.message || '';
   if (/bad auth|authentication failed/i.test(msg)) {
@@ -21,7 +19,7 @@ export async function connectDB() {
   try {
     const conn = await mongoose.connect(env.mongoUri, {
       dbName: env.mongoDbName,
-      serverSelectionTimeoutMS: 10000, // fail after 10s instead of hanging for 30s
+      serverSelectionTimeoutMS: 10000,
     });
     console.log(`[db] Connected to MongoDB: ${conn.connection.host} / ${conn.connection.name}`);
     return conn;

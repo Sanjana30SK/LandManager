@@ -54,10 +54,16 @@ Bengaluru. Each parcel is a point on an OpenStreetMap map with details attached
 ```bash
 cd server
 npm install
-cp .env.example .env      # Windows PowerShell: copy .env.example .env
 ```
 
-Open `server/.env` and fill in the values:
+Create a file named `.env` inside the `server` folder with these values:
+
+```env
+MONGODB_URI=mongodb+srv://<user>:<password>@<cluster-host>/?retryWrites=true&w=majority
+MONGODB_DB_NAME=land_parcel_manager
+PORT=5000
+CLIENT_ORIGIN=http://localhost:5173
+```
 
 | Variable          | Example                                   | Meaning                          |
 |-------------------|-------------------------------------------|----------------------------------|
@@ -95,8 +101,8 @@ npm run dev
 ```
 
 Open **http://localhost:5173**. The app expects the API at
-`http://localhost:5000/api`; to use a different address, copy
-`client/.env.example` to `client/.env` and change `VITE_API_URL`.
+`http://localhost:5000/api`; to use a different address, create `client/.env`
+with `VITE_API_URL=<your API URL>`.
 
 | Script            | What it does                              |
 |-------------------|-------------------------------------------|

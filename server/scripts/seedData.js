@@ -1,6 +1,3 @@
-// Dummy parcels around Bengaluru. Names, owners and areas are made up.
-// Locations use the API format { lat, lng }; the seed script converts them to GeoJSON.
-
 export const seedParcels = [
   {
     title: 'Plot 42, Whitefield',

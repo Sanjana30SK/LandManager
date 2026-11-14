@@ -1,7 +1,3 @@
-// The parcel form shown in the sidebar, used both to create (no `parcel`) and to edit (`parcel` given).
-//
-// Location is shared with the map: clicking the map or dragging the pin changes `location`
-// (a prop), and typing coordinates here calls onLocationChange so the pin moves too.
 import { useEffect, useRef, useState } from 'react';
 import { formatLabel } from '../utils/format.js';
 import {
@@ -47,7 +43,6 @@ export default function ParcelForm({
   const formRef = useRef(null);
   const { limits } = meta;
 
-  // The map moved the pin -> show the new coordinates in the inputs.
   useEffect(() => {
     if (!location) return;
     setValues((v) =>
@@ -58,7 +53,6 @@ export default function ParcelForm({
     setErrors(({ lat, lng, ...rest }) => rest);
   }, [location]);
 
-  // Escape closes the form (unless a save is in progress, or the key was meant for an open dialog).
   useEffect(() => {
     const onKey = (e) => e.key === 'Escape' && !saving && !e.target.closest?.('dialog') && onCancel();
     window.addEventListener('keydown', onKey);
@@ -77,7 +71,6 @@ export default function ParcelForm({
       setValues(next);
       if (errors[name]) setErrors(({ [name]: _removed, ...rest }) => rest);
 
-      // Typing coordinates moves the pin, once both values are valid numbers in range.
       if (name === 'lat' || name === 'lng') {
         const lat = Number(next.lat);
         const lng = Number(next.lng);
@@ -106,9 +99,8 @@ export default function ParcelForm({
 
     setSaving(true);
     try {
-      await onSubmit(toPayload(values)); // the parent closes the form on success
+      await onSubmit(toPayload(values));
     } catch (err) {
-      // 400 from the server: show each message under its field.
       const fieldErrors = serverErrorsToFields(err.details);
       setErrors(fieldErrors);
       setFormError(Object.keys(fieldErrors).length ? 'Please fix the highlighted fields.' : err.message);

@@ -1,8 +1,3 @@
-// The Leaflet map: OpenStreetMap tiles + one marker per parcel.
-// - Clicking a marker selects the parcel; selecting a parcel elsewhere (the list) flies the map to it.
-// - Clicking an empty spot reports the location (used to create a parcel).
-// - While creating or editing, a draggable red pin (DraftMarker) shows the parcel's location.
-//   When editing, the parcel's normal marker is hidden so the red pin stands in for it.
 import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
@@ -10,7 +5,6 @@ import ParcelDetails from './ParcelDetails.jsx';
 import DraftMarker from './DraftMarker.jsx';
 import { MAP_CENTER, DEFAULT_ZOOM, FOCUS_ZOOM, OSM_TILES } from '../constants.js';
 
-// Lives inside <MapContainer> so it can use the map instance (useMap only works there).
 function FlyToSelected({ parcel, markerRefs }) {
   const map = useMap();
 
@@ -19,15 +13,12 @@ function FlyToSelected({ parcel, markerRefs }) {
     const latlng = L.latLng(parcel.location.lat, parcel.location.lng);
     const zoom = Math.max(map.getZoom(), FOCUS_ZOOM);
 
-    // The popup opens ABOVE the marker. If the marker were in the middle of the map, a tall
-    // popup would be cut off at the top on laptop-height screens. So aim the map a bit
-    // higher than the marker: the marker ends up in the lower part, with room above it.
+    // Aim above the marker so its popup (which opens upward) fits on screen.
     const roomAbove = map.getSize().y * 0.25;
     const target = map.unproject(map.project(latlng, zoom).subtract([0, roomAbove]), zoom);
 
-    // Open the popup once the map has stopped moving, so Leaflet can still nudge it fully
-    // into view (it can't while flying). The extra tick matters for a just-created marker,
-    // which React is still setting up (StrictMode mounts it twice in development).
+    // Open once the map stops moving so Leaflet can pan the popup into view; the extra tick
+    // lets a just-created marker finish mounting (StrictMode mounts it twice in development).
     let opened = false;
     let tick;
     const open = () => {
@@ -36,7 +27,7 @@ function FlyToSelected({ parcel, markerRefs }) {
       tick = setTimeout(() => markerRefs.current.get(parcel.id)?.openPopup(), 0);
     };
     map.once('moveend', open);
-    const fallback = setTimeout(open, 1200); // in case the map didn't need to move at all
+    const fallback = setTimeout(open, 1200);
     map.flyTo(target, zoom, { duration: 0.8 });
 
     return () => {
@@ -49,8 +40,7 @@ function FlyToSelected({ parcel, markerRefs }) {
   return null;
 }
 
-// Leaflet measures its container once. If the container changes size later (window resized,
-// phone rotated, layout switching to mobile) the map must re-measure, or parts stay grey.
+// Leaflet measures its container once; re-measure on resize or parts of the map stay grey.
 function ResizeWatcher() {
   const map = useMap();
 
@@ -63,33 +53,26 @@ function ResizeWatcher() {
   return null;
 }
 
-// After a search / filter change, zoom the map to show all matching parcels.
-// Skipped on the first load (the map starts centred on Bengaluru), while a parcel is
-// selected (the map is already flying to it) and while the form is open.
 function FitToResults({ parcels, resultsKey, enabled }) {
   const map = useMap();
   const firstKey = useRef(resultsKey);
 
   useEffect(() => {
     if (!resultsKey || resultsKey === firstKey.current) return;
-    firstKey.current = null; // from now on, every new set of results is fitted
+    firstKey.current = null;
     if (!enabled || parcels.length === 0) return;
     map.closePopup();
     const bounds = L.latLngBounds(parcels.map((p) => [p.location.lat, p.location.lng]));
     map.flyToBounds(bounds, { padding: [60, 60], maxZoom: FOCUS_ZOOM, duration: 0.6 });
-    // Only react to new results, not to every change of `parcels` (e.g. after an edit).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultsKey]);
 
   return null;
 }
 
-// A small "reset view" button under the zoom buttons: back to the whole of Bengaluru.
 function ResetViewButton() {
   const map = useMap();
   const ref = useRef(null);
 
-  // Stop clicks on the button from reaching the map (which would start a new parcel).
   useEffect(() => {
     L.DomEvent.disableClickPropagation(ref.current);
   }, []);
@@ -117,9 +100,7 @@ function ResetViewButton() {
   );
 }
 
-// Reports clicks on empty map space.
-// A click that only closes an open popup is ignored; otherwise closing a popup by
-// clicking the map would unexpectedly start creating a parcel.
+// A click that only closes a popup is ignored, so it doesn't start a new parcel.
 function MapClickHandler({ onMapClick }) {
   const popupOpen = useRef(false);
   const popupWasOpenAtPress = useRef(false);
@@ -144,11 +125,10 @@ export default function ParcelMap({
   onMapClick,
   onEdit,
   onDelete,
-  draft, // { mode, id?, location } or null
+  draft,
   onDraftMove,
-  resultsKey, // changes whenever a new set of search / filter results arrives
+  resultsKey,
 }) {
-  // Keeps a handle on every Leaflet marker (by parcel id) so we can open its popup from code.
   const markerRefs = useRef(new Map());
   const selected = parcels.find((p) => p.id === selectedId) ?? null;
   const hiddenId = draft?.mode === 'edit' ? draft.id : null;
@@ -169,12 +149,9 @@ export default function ParcelMap({
           }}
           eventHandlers={{
             click: () => onSelect(parcel.id),
-            // Closing this popup clears the selection, unless another parcel was selected meanwhile.
             popupclose: () => onSelect((current) => (current === parcel.id ? null : current)),
           }}
         >
-          {/* autoPanPadding: if the popup would touch the map's edge, the map shifts so it
-              stays fully visible with some breathing room (more at the top for the controls). */}
           <Popup autoPanPaddingTopLeft={[60, 24]} autoPanPaddingBottomRight={[24, 24]}>
             <ParcelDetails parcel={parcel} onEdit={onEdit} onDelete={onDelete} />
           </Popup>

@@ -1,5 +1,3 @@
-// Loads the form options (statuses, land uses, text limits) from GET /api/meta once.
-// The server is the single source of truth for these values.
 import { useCallback, useEffect, useState } from 'react';
 import { getMeta } from '../api/parcels.js';
 
