@@ -1,0 +1,776 @@
+/* ---------- Design tokens ---------- */
+:root {
+  --brand: #8b1a1a;
+  --brand-soft: #fbefef;
+  --ink: #1f2328;
+  --muted: #57606a;
+  --line: #d8dee4;
+  --surface: #ffffff;
+  --surface-2: #f6f8fa;
+  --focus: #0969da;
+
+  /* status colours (also reused for marker colours in the bonus phase) */
+  --available: #1a7f37;
+  --available-bg: #dafbe1;
+  --sold: #cf222e;
+  --sold-bg: #ffebe9;
+  --reserved: #0969da;
+  --reserved-bg: #ddf4ff;
+  --under_dispute: #9a6700;
+  --under_dispute-bg: #fff8c5;
+
+  --radius: 8px;
+  --sidebar-width: 360px;
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--surface);
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.mono {
+  font-family: Consolas, 'SF Mono', monospace;
+  font-size: 0.85em;
+}
+
+/* ---------- App shell ---------- */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 3px solid var(--brand);
+  background: var(--surface);
+}
+
+.app-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-header__logo {
+  width: 30px;
+  height: 30px;
+  fill: var(--brand);
+}
+
+.app-header__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.app-header__subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 0; /* lets children scroll instead of growing the page */
+}
+
+/* ---------- Sidebar ---------- */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-right: 1px solid var(--line);
+  background: var(--surface-2);
+}
+
+.sidebar__header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.sidebar__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+}
+
+.count {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--brand-soft);
+  color: var(--brand);
+  font-size: 0.78rem;
+}
+
+.sidebar__hint {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.parcel-list {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+}
+
+.parcel-list li + li {
+  margin-top: 6px;
+}
+
+.parcel-item {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-left: 3px solid transparent;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.parcel-item:hover {
+  border-color: #b5bec8;
+}
+
+.parcel-item--selected {
+  border-color: var(--brand);
+  border-left-color: var(--brand);
+  box-shadow: 0 0 0 1px var(--brand);
+}
+
+.parcel-item__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.parcel-item__title {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.parcel-item__meta {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.list-state {
+  padding: 24px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.list-state--error {
+  color: var(--sold);
+}
+
+.list-state--error p {
+  margin-bottom: 12px;
+}
+
+.btn {
+  padding: 6px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--surface-2);
+}
+
+/* ---------- Status badge ---------- */
+.badge {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge--available {
+  color: var(--available);
+  background: var(--available-bg);
+}
+.badge--sold {
+  color: var(--sold);
+  background: var(--sold-bg);
+}
+.badge--reserved {
+  color: var(--reserved);
+  background: var(--reserved-bg);
+}
+.badge--under_dispute {
+  color: var(--under_dispute);
+  background: var(--under_dispute-bg);
+}
+
+/* ---------- Map ---------- */
+.map-pane {
+  position: relative;
+  min-height: 0;
+}
+
+.map {
+  height: 100%;
+  width: 100%;
+}
+
+/* Popup content */
+.details {
+  min-width: 220px;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.details__title {
+  margin-bottom: 6px;
+  font-size: 0.98rem;
+}
+
+.details__grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 12px;
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+}
+
+.details__grid dt {
+  color: var(--muted);
+}
+
+.details__grid dd {
+  margin: 0;
+}
+
+.details__description {
+  margin-top: 8px !important;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* ---------- Map overlays (Phase 4) ---------- */
+.map-hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  z-index: 1000; /* above Leaflet's panes */
+  transform: translateX(-50%);
+  max-width: calc(100% - 120px);
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(31, 35, 40, 0.82);
+  color: #fff;
+  font-size: 0.8rem;
+  text-align: center;
+  pointer-events: none; /* clicks go through to the map */
+}
+
+.map-pane--picking .leaflet-container {
+  cursor: crosshair;
+}
+
+/* The red "new parcel" pin (a Leaflet divIcon) */
+.draft-icon {
+  background: none;
+  border: none;
+}
+
+.draft-icon svg {
+  width: 40px;
+  height: 40px;
+  fill: var(--brand);
+  stroke: #fff;
+  stroke-width: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+  cursor: grab;
+}
+
+/* ---------- Form (Phase 4) ---------- */
+.sidebar__body {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--surface);
+}
+
+.parcel-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 20px;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.field__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.field__required {
+  color: var(--sold);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+.field textarea {
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--focus);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+}
+
+.field--invalid input,
+.field--invalid select,
+.field--invalid textarea {
+  border-color: var(--sold);
+}
+
+.field__error {
+  font-size: 0.76rem;
+  color: var(--sold);
+}
+
+.field__hint {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.field__hint--block {
+  margin-top: -6px;
+}
+
+.form-alert {
+  padding: 8px 12px;
+  border: 1px solid var(--sold);
+  border-radius: 6px;
+  background: var(--sold-bg);
+  color: var(--sold);
+  font-size: 0.84rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.btn--primary {
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: #6f1414;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ---------- Edit / delete (Phase 5) ---------- */
+.details__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.btn--small {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+}
+
+.btn--danger {
+  border-color: var(--sold);
+  background: var(--sold);
+  color: #fff;
+}
+
+.btn--danger:hover {
+  background: #a40e26;
+}
+
+.btn--danger-outline {
+  border-color: #f1b7bd;
+  color: var(--sold);
+}
+
+.btn--danger-outline:hover {
+  background: var(--sold-bg);
+}
+
+/* Confirmation dialog (native <dialog>) */
+.dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  color: var(--ink);
+}
+
+.dialog::backdrop {
+  background: rgba(31, 35, 40, 0.45);
+}
+
+.dialog__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+}
+
+.dialog__title {
+  font-size: 1.05rem;
+}
+
+.dialog__message {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.dialog__message strong {
+  color: var(--ink);
+}
+
+/* Notifications */
+.toasts {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  z-index: 1100;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px 8px 14px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: #fff;
+  font-size: 0.86rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  animation: toast-in 0.2s ease-out;
+}
+
+.toast--success {
+  border-left: 4px solid #4ac26b;
+}
+
+.toast--error {
+  border-left: 4px solid #ff8182;
+}
+
+.toast__close {
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: #c9d1d9;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+/* ---------- Search and filters (Phase 6) ---------- */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search__icon {
+  position: absolute;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  fill: var(--muted);
+  pointer-events: none;
+}
+
+.search__input {
+  width: 100%;
+  padding: 8px 34px 8px 34px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+}
+
+/* Hide the browser's own clear button; we draw our own. */
+.search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search__input:focus,
+.filters__row select:focus {
+  border-color: var(--focus);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.15);
+}
+
+.search__clear {
+  position: absolute;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search__clear:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.search__kbd {
+  position: absolute;
+  right: 9px;
+  padding: 0 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 0.72rem;
+  pointer-events: none;
+}
+
+.filters__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.filters__row select {
+  width: 100%;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.link-button {
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--focus);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  text-decoration: underline;
+}
+
+/* While new results load, the old list stays visible but faded, with a moving bar on top. */
+.parcel-list--refreshing {
+  position: relative;
+  opacity: 0.55;
+  transition: opacity 0.15s;
+}
+
+.parcel-list--refreshing::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  display: block;
+  height: 3px;
+  margin: -8px -8px 5px;
+  background: linear-gradient(90deg, transparent, var(--brand), transparent);
+  background-size: 50% 100%;
+  background-repeat: no-repeat;
+  animation: loading-bar 1s linear infinite;
+}
+
+@keyframes loading-bar {
+  from {
+    background-position: -50% 0;
+  }
+  to {
+    background-position: 150% 0;
+  }
+}
+
+.list-state p + .btn {
+  margin-top: 12px;
+}
+
+/* Reset-view button, placed under Leaflet's zoom buttons */
+.reset-view {
+  top: 74px;
+}
+
+.reset-view a {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.reset-view svg {
+  width: 16px;
+  height: 16px;
+  fill: #333;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .parcel-list--refreshing::before {
+    animation: none;
+    background: var(--brand);
+  }
+}
+
+/* ---------- Small screens: map on top, list below ---------- */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 55% 45%;
+  }
+
+  .map-pane {
+    order: -1;
+  }
+
+  .sidebar {
+    border-right: none;
+    border-top: 1px solid var(--line);
+  }
+
+  /* The list header already says "click the map to add one"; keep the small map clear.
+     The hint shown while placing a parcel stays. */
+  .map-hint--idle {
+    display: none;
+  }
+
+  .map-hint {
+    font-size: 0.74rem;
+  }
+}
